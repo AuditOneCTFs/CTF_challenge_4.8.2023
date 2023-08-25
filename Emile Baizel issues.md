@@ -297,6 +297,58 @@ AuditOne team can comment here
 ---
 
 **Issue category**
+Medium
+
+**Issue title**
+[MEDIUM 5] Ensure ERC20 beneficiaries do not exceed 100%
+
+**Where**
+In the `updateMyTrustBeneficiaries` function in Trustee.sol on [line 170](
+https://github.com/AuditoneCodebase/CTF_challenge_4.8.2023/blob/main/Trustee.sol#L170)
+
+**Impact**
+Incorrect calculations of payouts are possible if sum of payout percentage > 100
+
+**Description**
+Beneficiaries who are set to receive ERC20 tokens have a `value` specified which is their percentage of the will owner's balance of that ERC20 token. There are no checks in place to ensure that the sum of all beneficiaries of this token does not exceed 100%, which if it does, would cause beneficiaries to lose out on payments.
+
+**Recommendations to fix**
+Wherever beneficiaries are added or modified, iterate over the existing set of beneficiaries and ensure the total `value` does not exceed 100.
+
+**Additional context**
+
+**Comments by AuditOne**
+AuditOne team can comment here
+
+---
+
+**Issue category**
+Medium
+
+**Issue title**
+[MEDIUM 6] ERC20 beneficiaries do not receive their full payout
+
+**Where**
+In the `getEntitlementOnDeath` function in Trustee.sol on [line 292](
+https://github.com/AuditoneCodebase/CTF_challenge_4.8.2023/blob/main/Trustee.sol#L292)
+
+**Impact**
+Any beneficiary besides the initial one is paid out less than they are owed
+
+**Description**
+In `getEntitlementOnDeath`, the will owner's balance is always looked up, and then the beneficiary's percentage is calculated from this. There are a few problems with this. First, the first beneficiary to be paid will have their percentage be against the full balance, which is correct. However, subsequent beneficiary payouts will be made against the reduced balance, which is incorrect. Second, it's possible that the full payout will never occur because every payout is a percentage of the current balance, but there is no way to send all remaining tokens for a payout. For example, if two beneficiaries each have a 50% payout, and the balance is 100, then the payouts would be 50 and 25, which is not what is intended.
+
+**Recommendations to fix**
+The specific fix depends on the intended behavior of the contract, but at some point the balance should be fixed so the calculations can be made against a fixed value. Consider adding a function `calculateInheritanceOnDeath` that can be called one time upon the will owner's passing away, and in that function you calculate the payout amounts.
+
+**Additional context**
+
+**Comments by AuditOne**
+AuditOne team can comment here
+
+---
+
+**Issue category**
 Low
 
 **Issue title**
